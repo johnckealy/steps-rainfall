@@ -1,8 +1,8 @@
-import subprocess
+
 from extrapolation import extrapolate, original_field
 from matplotlib.animation import FuncAnimation
 from matplotlib import pyplot as plt
-from utils import find_gridpoint
+from utils import find_gridpoint, shell_command
 from pysteps.visualization import plot_precip_field
 import pprint
 import numpy as np
@@ -35,26 +35,22 @@ def animate_extrapolants(i):
     cont = plot_precip_field(extrapolated_fields[i-1], geodata=metadata, map='cartopy')
     return cont
 
-def animate_originals(i):
+def animate_originals(date):
     fig.clf()
-    o_field, metadata = original_field(dates[i], provider="meteireann")
-    print(np.shape(o_field))
+    o_field, metadata = original_field(date, provider="meteireann")
     cont = plot_precip_field(o_field, geodata=metadata, map="cartopy", drawlonlatlines=True, cartopy_scale='10m')
     point_precip = point_value(oe_field, 53.784829, -7.694123)
     print(f"Point value at [53.784829, -7.694123] is {point_precip}mm/hr")
     plt.plot(-7.694123, 53.784829, color='r', marker='o', transform=ccrs.PlateCarree())
-
-    return cont
-
-
-# anim = FuncAnimation(fig, animate_originals, frames=3,  interval=1000)
-# anim = FuncAnimation(fig, animate_extrapolants, frames=3,  interval=1000)
-# anim.save('met_originals.gif', writer='imagemagick', fps=2)
-# plt.show()
+    plt.savefig(f"tmp/Ireland_{date}.png", dpi=300)
 
 
-command = 'touch thisfile.txt'
-process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-output, error = process.communicate()
 
-print(output, error)
+
+if __name__=="__main__":
+    shell_command('mkdir tmp/')
+    for i,date in enumerate(dates):
+        animate_originals(date)
+    shell_command('convert -delay 50 tmp/Ireland*.png -loop 0 Ireland.gif')
+    shell_command('rm tmp/*')
+    shell_command('rmdir tmp/')

@@ -11,8 +11,18 @@ import os
 from netCDF4 import Dataset as netcdf_dataset
 from cartopy import config
 from scipy import spatial
+import subprocess
 
 RADARPATH = "/home/jokea/steps-rainfall/radar"
+
+
+def shell_command(command):
+    process = subprocess.Popen(command, shell=True, executable='/bin/bash')
+    output, error = process.communicate()
+    if error: 
+        return error
+    else:
+        return output
 
 
 def download_meteireann_radar(user='me3718', passwd='YTB@ZTg2', no_of_files=1):
