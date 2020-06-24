@@ -1,2 +1,3 @@
 radar/
 .vscode/
+__pycache__/
